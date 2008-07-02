@@ -43,6 +43,7 @@ FutureProxy := Object clone do(
 Future := Object clone do(
 	newSlot("runTarget")
 	newSlot("runMessage")
+	newSlot("runSender")
 	newSlot("waitingCoros")
 
 	futureProxy := method(
@@ -118,7 +119,7 @@ Object do(
 		loop(
 			while(future := actorQueue first,
 				e := try(
-					future setResult(self doMessage(future runMessage))
+					future setResult(future runMessage doInContext(self, future runSender))
 					//stopStatus(future setResult(self doMessage(future runMessage)))
 				)
 				actorQueue removeFirst
@@ -140,8 +141,8 @@ Object do(
 
 	setSlot("@", method(
 		//writeln("@ ", call argAt(0))
-		m := call argAt(0) asMessageWithEvaluatedArgs(call sender)
-		f := Future clone setRunTarget(self) setRunMessage(m)
+		m := call argAt(0)
+		f := Future clone setRunTarget(self) setRunMessage(m) setRunSender(call sender)
 		self actorRun
 		self actorQueue append(f)
 		f futureProxy
@@ -149,8 +150,8 @@ Object do(
 
 	setSlot("@@", method(
 		//writeln(self type , "_", self uniqueId, " @@", call argAt(0)) //, " ", call argAt(0) label)
-		m := call argAt(0) asMessageWithEvaluatedArgs(call sender)
-		f := Future clone setRunTarget(self) setRunMessage(m)
+		m := call argAt(0)
+		f := Future clone setRunTarget(self) setRunMessage(m) setRunSender(call sender)
 		self actorRun
 		self actorQueue append(f)
 		nil

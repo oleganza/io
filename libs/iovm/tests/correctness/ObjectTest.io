@@ -49,6 +49,19 @@ ObjectTest := UnitTest clone do(
 		assertEquals(future, 4)
 		// known bug - assertEquals(4, future)
 	)
+	
+  testFutureWithLazyArguments := method(
+    // Async call with a future
+  	assertEquals(list(1, 2, 3) @map(*2), list(2, 4, 6))
+  	
+  	// Async call without a future
+  	v := 1
+  	m := block(v = v doMessage(call message argAt(0)))
+  	m @@call(*2)
+  	yield // give some time to make v = v*2
+  	assertEquals(v, 2)
+  )
+	
 
 	testQuestionMarkReturns := method(
 		a := method(x, x return "first"; "second")
